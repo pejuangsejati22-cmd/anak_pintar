@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/mock_auth_service.dart';
+import '../services/database_helper.dart'; 
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -14,7 +14,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  void _handleSignup() async {
+  Future<void> _handleSignup() async {
     String name = _nameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
@@ -25,19 +25,32 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1)); // Efek loading sebentar
+    
+    // PANGGIL DATABASE HELPER (Simpan ke SQLite)
+    bool success = await DatabaseHelper.instance.registerUser(name, email, password);
 
-    if (MockAuthService.signUp(name, email, password)) {
+    if (success) {
+      // Cek apakah layar masih aktif sebelum menampilkan SnackBar
+      if (!mounted) return;
+      _showSnackBar("Hore! Berhasil daftar. Silakan login.", Colors.green);
+      
+      // Tunggu 1 detik
+      await Future.delayed(const Duration(seconds: 1)); 
+      
+      // PERBAIKAN PENTING DI SINI:
+      // Cek 'mounted' LAGI setelah bangun dari tidur (await).
+      // Kita harus memastikan layar masih ada sebelum menyuruhnya keluar (pop).
       if (mounted) {
-        _showSnackBar("Hore! Berhasil daftar. Silakan login.", Colors.green);
-        Navigator.pop(context); // Kembali ke halaman Login
+        Navigator.pop(context); // Kembali ke Login
       }
+
     } else {
       if (mounted) {
         _showSnackBar("Yah, Email sudah terpakai!", Colors.redAccent);
       }
     }
 
+    // Stop loading hanya jika layar masih ada
     if (mounted) setState(() => _isLoading = false);
   }
 
@@ -55,7 +68,6 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // extendBodyBehindAppBar agar background bubble terlihat sampai atas
       extendBodyBehindAppBar: true, 
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -182,7 +194,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // Widget Custom Input Field (Konsisten dengan Login Screen)
+  // Widget Custom Input Field
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -196,7 +208,7 @@ class _SignupScreenState extends State<SignupScreen> {
         labelText: label,
         prefixIcon: Icon(icon, color: const Color(0xFF6C63FF)),
         filled: true,
-        fillColor: const Color(0xFFF5F6FA), // Abu-abu sangat muda
+        fillColor: const Color(0xFFF5F6FA), 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
@@ -206,7 +218,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // Widget Background Bubble (Konsisten)
+  // Widget Background Bubble
   Widget _buildBackground() {
     return Container(
       color: const Color(0xFFF0F4F8),

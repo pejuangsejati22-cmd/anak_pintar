@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../services/mock_auth_service.dart';
-import '../data/question_bank.dart';
+import '../data/question_bank.dart'; // Pastikan nama file ini sesuai (question_data.dart)
 import '../models/question_model.dart';
 import '../widgets/level_card.dart';
 import 'quiz_screen.dart';
-import 'login_screen.dart'; // Import Login Screen untuk navigasi balik
+import 'login_screen.dart'; 
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -35,9 +35,11 @@ class HomeScreen extends StatelessWidget {
               backgroundColor: Colors.grey[300],
               foregroundColor: Colors.black87,
               elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             child: const Text("Tidak"),
           ),
+          const SizedBox(width: 10),
           // Tombol Ya (Logout)
           ElevatedButton(
             onPressed: () {
@@ -53,7 +55,10 @@ class HomeScreen extends StatelessWidget {
                 (route) => false, // Syarat: Hapus semua rute
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
             child: const Text("Ya, Keluar"),
           ),
         ],
@@ -85,7 +90,7 @@ class HomeScreen extends StatelessWidget {
                           Text(
                             "Halo, ${MockAuthService.userName}! 🚀",
                             style: const TextStyle(
-                              fontSize: 22, // Sedikit dikecilkan agar muat
+                              fontSize: 22, 
                               fontWeight: FontWeight.bold,
                               color: Colors.deepPurple,
                               fontFamily: 'Arial Rounded MT Bold',
@@ -187,8 +192,9 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Logic Memilih Pelajaran
+  // Logic Memilih Pelajaran (MODAL BOTTOM SHEET)
   void _showSubjectSelector(BuildContext context, Level level, Color color) {
+    // Filter mata pelajaran yang tersedia untuk level ini
     final availableSubjects = questionBank
         .where((q) => q.level == level)
         .map((q) => q.subject)
@@ -200,7 +206,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) => Container(
-        height: MediaQuery.of(context).size.height * 0.5,
+        height: MediaQuery.of(context).size.height * 0.55, // Tinggi modal
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
@@ -208,25 +214,28 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
+            // Garis Handle kecil di atas
             Container(
               width: 50, height: 5,
               decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10)),
             ),
             const SizedBox(height: 20),
+            
             Text(
               "Pilih Pelajaran",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color),
             ),
             const SizedBox(height: 24),
+            
             Expanded(
               child: availableSubjects.isEmpty
               ? const Center(child: Text("Belum ada soal untuk kategori ini."))
               : GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                    crossAxisCount: 2, // 2 Tombol per baris
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 2.2,
+                    childAspectRatio: 2.2, // Perbandingan lebar:tinggi tombol
                   ),
                   itemCount: availableSubjects.length,
                   itemBuilder: (context, index) {
@@ -245,6 +254,7 @@ class HomeScreen extends StatelessWidget {
     String label = subject.name.toUpperCase();
     IconData icon;
 
+    // Tentukan Ikon berdasarkan Mapel
     switch (subject) {
       case Subject.matematika: icon = Icons.calculate; break;
       case Subject.bahasa: icon = Icons.menu_book; break;
@@ -255,33 +265,34 @@ class HomeScreen extends StatelessWidget {
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: color.withOpacity(0.1),
-        foregroundColor: color,
+        backgroundColor: color.withOpacity(0.1), // Background transparan pudar
+        foregroundColor: color, // Warna Teks & Icon
         elevation: 0,
-        side: BorderSide(color: color, width: 2),
+        side: BorderSide(color: color, width: 2), // Garis pinggir
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         padding: const EdgeInsets.symmetric(horizontal: 10),
       ),
       onPressed: () {
-        Navigator.pop(context); // Tutup Modal
+        Navigator.pop(context); // Tutup Modal dulu
 
-        // Filter Soal
+        // 1. Filter Soal sesuai Level & Mapel yang dipilih
         final filteredQuestions = questionBank.where((q) {
           return q.level == level && q.subject == subject;
         }).toList();
 
+        // 2. Validasi apakah soal ada
         if (filteredQuestions.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Soal belum tersedia untuk saat ini.")),
           );
         } else {
-          // Navigasi ke Kuis
+          // 3. Navigasi ke QuizScreen
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => QuizScreen(
                 questions: filteredQuestions,
-                categoryName: label,
+                categoryName: label, // Kirim Nama Mapel untuk judul
               ),
             ),
           );

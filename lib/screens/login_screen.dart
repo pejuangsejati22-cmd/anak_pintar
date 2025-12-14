@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/mock_auth_service.dart';
 import 'home_screen.dart';
 import 'signup_screen.dart';
+import '../services/database_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,28 +16,34 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  void _handleLogin() async {
+  Future<void> _handleLogin() async {
     setState(() => _isLoading = true);
-    
-    // Simulasi delay loading
-    await Future.delayed(const Duration(seconds: 1));
 
-    String email = _emailController.text;
-    String password = _passwordController.text;
+    // Cek ke Database Asli
+    var user = await DatabaseHelper.instance.loginUser(
+      _emailController.text, 
+      _passwordController.text
+    );
 
-    if (MockAuthService.login(email, password)) {
+    if (user != null) {
+      // Jika Login Sukses:
+      // Simpan data user ke 'Session Memory' (MockAuthService)
+      // Agar Home Screen tahu siapa yang login
+      MockAuthService.currentUserEmail = user['email'];
+      MockAuthService.currentUserName = user['name'];
+
       if (mounted) {
-        // Pindah ke Home dan hapus riwayat navigasi
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       }
     } else {
+      // Jika Login Gagal
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text("Email atau password salah! Coba lagi ya."),
+            content: const Text("Email atau password salah!"),
             backgroundColor: Colors.redAccent,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -44,7 +51,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     }
-
     setState(() => _isLoading = false);
   }
 

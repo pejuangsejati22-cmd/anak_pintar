@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import '../models/question_model.dart';
+import '../services/database_helper.dart'; // Import Database
+import '../services/mock_auth_service.dart'; // Import Session User
+import 'result_screen.dart'; // Import Halaman Hasil
 
 class QuizScreen extends StatefulWidget {
-  // Update 1: Menerima List<Question> langsung, bukan Level/Subject
   final List<Question> questions;
-  final String categoryName; // Tambahan biar judul AppBar cantik
+  final String categoryName;
 
   const QuizScreen({
     super.key, 
     required this.questions, 
-    this.categoryName = "Kuis Seru", // Default title
+    this.categoryName = "Kuis Seru",
   });
 
   @override
@@ -25,8 +27,7 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   void initState() {
     super.initState();
-    // Update 2: Tidak perlu filter lagi di sini, karena data sudah dikirim matang dari Home
-    // Cukup acak soal biar urutannya beda-beda tiap main
+    // Acak urutan soal agar tidak bosan
     widget.questions.shuffle();
   }
 
@@ -37,10 +38,11 @@ class _QuizScreenState extends State<QuizScreen> {
       _isAnswered = true;
       _selectedOptionIndex = index;
       if (index == widget.questions[_currentIndex].correctIndex) {
-        _score += 10;
+        _score += 10; // Tambah nilai 10 jika benar
       }
     });
 
+    // Jeda sebentar sebelum lanjut ke soal berikutnya
     Future.delayed(const Duration(milliseconds: 1200), () {
       if (_currentIndex < widget.questions.length - 1) {
         setState(() {
@@ -49,48 +51,46 @@ class _QuizScreenState extends State<QuizScreen> {
           _selectedOptionIndex = null;
         });
       } else {
-        _showScoreDialog();
+        // PERBAIKAN DI SINI:
+        // Jika soal habis, panggil fungsi finish (Simpan & Pindah)
+        _finishQuiz(); 
       }
     });
   }
 
-  void _showScoreDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text("Hore! Selesai!", textAlign: TextAlign.center),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.star, color: Colors.amber, size: 60),
-            const SizedBox(height: 10),
-            Text("Nilai Kamu: $_score", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          ],
+  // Fungsi Baru: Simpan ke DB & Pindah ke ResultScreen
+  void _finishQuiz() async {
+    // 1. Simpan Skor ke Database SQLite
+    if (MockAuthService.currentUserEmail != null) {
+      await DatabaseHelper.instance.saveScore(
+        MockAuthService.currentUserEmail!, 
+        "Latihan",           // Level (Bisa disesuaikan nanti)
+        widget.categoryName, // Kategori (Matematika, dll)
+        _score               // Skor Akhir
+      );
+    }
+
+    // 2. Pindah ke Halaman Hasil (Replacement agar tidak bisa back ke soal)
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ResultScreen(
+            score: _score,
+            total: widget.questions.length,
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx); // Tutup Dialog
-              Navigator.pop(context); // Kembali ke Home
-            },
-            child: const Text("Main Lagi"),
-          )
-        ],
-      ),
-    );
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Update 3: Menggunakan widget.questions
     final currentQuestion = widget.questions[_currentIndex];
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        // Menampilkan nama kategori yang dikirim
         title: Text(widget.categoryName),
         centerTitle: true,
         backgroundColor: Colors.white,
