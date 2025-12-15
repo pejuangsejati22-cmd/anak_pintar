@@ -25,7 +25,8 @@ class LevelCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.4), // Bayangan berwarna sesuai kartu
+            // Sudah benar menggunakan withValues
+            color: Colors.blue.withValues(alpha: 0.5), 
             blurRadius: 10,
             offset: const Offset(0, 6),
           ),
@@ -41,7 +42,8 @@ class LevelCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25),
               gradient: LinearGradient(
-                colors: [color.withOpacity(0.85), color],
+                // Sudah benar menggunakan withValues
+                colors: [Colors.blue.withValues(alpha: 0.5), color],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -55,7 +57,8 @@ class LevelCard extends StatelessWidget {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2), // Putih transparan
+                      // PERBAIKAN: Mengganti withOpacity menjadi withValues
+                      color: Colors.white.withValues(alpha: 0.2), 
                       shape: BoxShape.circle,
                     ),
                     child: Icon(icon, size: 35, color: Colors.white),
@@ -76,6 +79,8 @@ class LevelCard extends StatelessWidget {
                             fontWeight: FontWeight.w900,
                             color: Colors.white, // Teks Putih agar kontras
                             fontFamily: 'Arial Rounded MT Bold', // Font bulat
+                            // Tambahan: Fallback font agar aman
+                            fontFamilyFallback: ['Roboto', 'sans-serif'],
                             letterSpacing: 1.0,
                           ),
                           maxLines: 1,

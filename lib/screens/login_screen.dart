@@ -28,9 +28,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (user != null) {
       // Jika Login Sukses:
       // Simpan data user ke 'Session Memory' (MockAuthService)
-      // Agar Home Screen tahu siapa yang login
-      MockAuthService.currentUserEmail = user['email'];
-      MockAuthService.currentUserName = user['name'];
+      // Menggunakan 'as String' untuk memastikan tipe data aman
+      MockAuthService.currentUserEmail = user['email'] as String;
+      MockAuthService.currentUserName = user['name'] as String;
 
       if (mounted) {
         Navigator.pushReplacement(
@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // Menggunakan Stack agar background bisa di belakang form
       body: Stack(
         children: [
-          _buildBackground(), // Background dekoratif (sama dengan Home)
+          _buildBackground(), // Background dekoratif
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
@@ -75,7 +75,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.deepPurple.withOpacity(0.2),
+                          // PERBAIKAN: Menggunakan withValues
+                          color: Colors.deepPurple.withValues(alpha: 0.2),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -89,7 +90,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   Card(
                     elevation: 8,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    shadowColor: Colors.deepPurple.withOpacity(0.3),
+                    // PERBAIKAN: Menggunakan withValues
+                    shadowColor: Colors.deepPurple.withValues(alpha: 0.3),
                     child: Padding(
                       padding: const EdgeInsets.all(32.0),
                       child: Column(
@@ -102,7 +104,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: 26, 
                               fontWeight: FontWeight.bold,
                               color: Colors.deepPurple,
-                              fontFamily: 'Arial Rounded MT Bold', // Font bulat
+                              fontFamily: 'Arial Rounded MT Bold',
+                              // Tambahan: Fallback font agar aman
+                              fontFamilyFallback: ['Roboto', 'sans-serif'],
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -204,17 +208,17 @@ class _LoginScreenState extends State<LoginScreen> {
         labelText: label,
         prefixIcon: Icon(icon, color: const Color(0xFF6C63FF)),
         filled: true,
-        fillColor: const Color(0xFFF5F6FA), // Warna latar input abu-abu sangat muda
+        fillColor: const Color(0xFFF5F6FA),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide.none, // Hilangkan garis border kasar
+          borderSide: BorderSide.none,
         ),
         contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       ),
     );
   }
 
-  // Widget Background Bubble (Sama persis dengan Home agar konsisten)
+  // Widget Background Bubble (Updated to withValues)
   Widget _buildBackground() {
     return Container(
       color: const Color(0xFFF0F4F8),
@@ -222,15 +226,18 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           Positioned(
             top: -60, left: -60,
-            child: CircleAvatar(radius: 120, backgroundColor: Colors.blueAccent.withOpacity(0.1)),
+            // PERBAIKAN: Menggunakan withValues
+            child: CircleAvatar(radius: 120, backgroundColor: Colors.blueAccent.withValues(alpha: 0.1)),
           ),
           Positioned(
             bottom: -40, right: -40,
-            child: CircleAvatar(radius: 100, backgroundColor: Colors.orangeAccent.withOpacity(0.1)),
+            // PERBAIKAN: Menggunakan withValues
+            child: CircleAvatar(radius: 100, backgroundColor: Colors.orangeAccent.withValues(alpha: 0.1)),
           ),
           Positioned(
             top: 100, right: 30,
-            child: CircleAvatar(radius: 30, backgroundColor: Colors.pinkAccent.withOpacity(0.1)),
+            // PERBAIKAN: Menggunakan withValues
+            child: CircleAvatar(radius: 30, backgroundColor: Colors.pinkAccent.withValues(alpha: 0.1)),
           ),
         ],
       ),

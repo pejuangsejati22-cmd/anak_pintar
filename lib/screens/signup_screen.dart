@@ -37,9 +37,7 @@ class _SignupScreenState extends State<SignupScreen> {
       // Tunggu 1 detik
       await Future.delayed(const Duration(seconds: 1)); 
       
-      // PERBAIKAN PENTING DI SINI:
       // Cek 'mounted' LAGI setelah bangun dari tidur (await).
-      // Kita harus memastikan layar masih ada sebelum menyuruhnya keluar (pop).
       if (mounted) {
         Navigator.pop(context); // Kembali ke Login
       }
@@ -94,7 +92,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.deepPurple.withOpacity(0.2),
+                          // PERBAIKAN: Menggunakan withValues
+                          color: Colors.deepPurple.withValues(alpha: 0.2),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -108,7 +107,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   Card(
                     elevation: 8,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    shadowColor: Colors.deepPurple.withOpacity(0.3),
+                    // PERBAIKAN: Menggunakan withValues
+                    shadowColor: Colors.deepPurple.withValues(alpha: 0.3),
                     child: Padding(
                       padding: const EdgeInsets.all(32.0),
                       child: Column(
@@ -122,6 +122,8 @@ class _SignupScreenState extends State<SignupScreen> {
                               fontWeight: FontWeight.bold,
                               color: Colors.deepPurple,
                               fontFamily: 'Arial Rounded MT Bold',
+                              // Tambahan: Fallback font agar aman
+                              fontFamilyFallback: ['Roboto', 'sans-serif'],
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -226,15 +228,18 @@ class _SignupScreenState extends State<SignupScreen> {
         children: [
           Positioned(
             top: -60, left: -60,
-            child: CircleAvatar(radius: 120, backgroundColor: Colors.blueAccent.withOpacity(0.1)),
+            // PERBAIKAN: Menggunakan withValues
+            child: CircleAvatar(radius: 120, backgroundColor: Colors.blueAccent.withValues(alpha: 0.1)),
           ),
           Positioned(
             bottom: -40, right: -40,
-            child: CircleAvatar(radius: 100, backgroundColor: Colors.orangeAccent.withOpacity(0.1)),
+            // PERBAIKAN: Menggunakan withValues
+            child: CircleAvatar(radius: 100, backgroundColor: Colors.orangeAccent.withValues(alpha: 0.1)),
           ),
           Positioned(
             top: 100, right: 30,
-            child: CircleAvatar(radius: 30, backgroundColor: Colors.pinkAccent.withOpacity(0.1)),
+            // PERBAIKAN: Menggunakan withValues
+            child: CircleAvatar(radius: 30, backgroundColor: Colors.pinkAccent.withValues(alpha: 0.1)),
           ),
         ],
       ),

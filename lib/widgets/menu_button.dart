@@ -26,14 +26,16 @@ class MenuButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(25), // Radius 25 biar lebih bulat (ramah anak)
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.4), // Bayangan mengikuti warna tombol
+            // PERBAIKAN: Menggunakan withValues
+            color: color.withValues(alpha: 0.4), // Bayangan mengikuti warna tombol
             blurRadius: 10,
             offset: const Offset(0, 6),
           ),
         ],
         // Gradasi otomatis dibuat dari satu warna
         gradient: LinearGradient(
-          colors: [color.withOpacity(0.85), color],
+          // PERBAIKAN: Menggunakan withValues
+          colors: [color.withValues(alpha: 0.85), color],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -53,7 +55,8 @@ class MenuButton extends StatelessWidget {
                   height: 60,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    // PERBAIKAN: Menggunakan withValues
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(icon, color: Colors.white, size: 30),
@@ -75,6 +78,8 @@ class MenuButton extends StatelessWidget {
                           fontWeight: FontWeight.w900, // Lebih tebal
                           letterSpacing: 1,
                           fontFamily: 'Arial Rounded MT Bold', // Font tema game
+                          // Tambahan: Fallback font agar aman
+                          fontFamilyFallback: ['Roboto', 'sans-serif'],
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

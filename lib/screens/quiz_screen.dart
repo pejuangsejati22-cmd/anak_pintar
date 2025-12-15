@@ -44,6 +44,8 @@ class _QuizScreenState extends State<QuizScreen> {
 
     // Jeda sebentar sebelum lanjut ke soal berikutnya
     Future.delayed(const Duration(milliseconds: 1200), () {
+      if (!mounted) return; // Cek mounted agar aman saat delay
+
       if (_currentIndex < widget.questions.length - 1) {
         setState(() {
           _currentIndex++;
@@ -51,7 +53,6 @@ class _QuizScreenState extends State<QuizScreen> {
           _selectedOptionIndex = null;
         });
       } else {
-        // PERBAIKAN DI SINI:
         // Jika soal habis, panggil fungsi finish (Simpan & Pindah)
         _finishQuiz(); 
       }
@@ -78,6 +79,8 @@ class _QuizScreenState extends State<QuizScreen> {
           builder: (context) => ResultScreen(
             score: _score,
             total: widget.questions.length,
+            // Opsional: Kirim warna tema berdasarkan kategori jika perlu
+            themeColor: Colors.blueAccent, 
           ),
         ),
       );
@@ -91,7 +94,13 @@ class _QuizScreenState extends State<QuizScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.categoryName),
+        title: Text(
+          widget.categoryName,
+          style: const TextStyle(
+            fontFamily: 'Arial Rounded MT Bold',
+            fontFamilyFallback: ['Roboto', 'sans-serif'],
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -126,10 +135,19 @@ class _QuizScreenState extends State<QuizScreen> {
             Expanded(
               flex: 2,
               child: Center(
-                child: Text(
-                  currentQuestion.text,
-                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black87),
-                  textAlign: TextAlign.center,
+                // SingleChildScrollView agar aman jika teks soal sangat panjang
+                child: SingleChildScrollView(
+                  child: Text(
+                    currentQuestion.text,
+                    style: const TextStyle(
+                      fontSize: 26, 
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.black87,
+                      fontFamily: 'Arial Rounded MT Bold', // Konsisten dengan font tema
+                      fontFamilyFallback: ['Roboto', 'sans-serif'],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ),
@@ -165,12 +183,22 @@ class _QuizScreenState extends State<QuizScreen> {
                           border: Border.all(color: borderColor, width: 2),
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
-                            BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5, offset: const Offset(0, 4))
+                            BoxShadow(
+                              // PERBAIKAN: Menggunakan withValues
+                              color: Colors.grey.withValues(alpha: 0.1), 
+                              blurRadius: 5, 
+                              offset: const Offset(0, 4)
+                            )
                           ]
                         ),
                         child: Text(
                           currentQuestion.options[index],
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                            fontSize: 18, 
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Arial Rounded MT Bold', // Konsisten dengan font tema
+                            fontFamilyFallback: ['Roboto', 'sans-serif'],
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ),

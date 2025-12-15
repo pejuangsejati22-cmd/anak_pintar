@@ -48,7 +48,8 @@ class ResultScreen extends StatelessWidget {
                   // Kartu Hasil
                   Card(
                     elevation: 10,
-                    shadowColor: primaryColor.withOpacity(0.4),
+                    // PERBAIKAN: Menggunakan withValues
+                    shadowColor: primaryColor.withValues(alpha: 0.4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
@@ -72,7 +73,10 @@ class ResultScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: isPassed ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                              // PERBAIKAN: Menggunakan withValues
+                              color: isPassed 
+                                  ? Colors.green.withValues(alpha: 0.1) 
+                                  : Colors.red.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -90,7 +94,9 @@ class ResultScreen extends StatelessWidget {
                               fontSize: 28, 
                               fontWeight: FontWeight.bold, 
                               color: primaryColor,
-                              fontFamily: 'Arial Rounded MT Bold', // Pastikan font support atau gunakan default
+                              fontFamily: 'Arial Rounded MT Bold',
+                              // Tambahan: Fallback font agar aman
+                              fontFamilyFallback: ['Roboto', 'sans-serif'],
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -143,7 +149,8 @@ class ResultScreen extends StatelessWidget {
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
                         elevation: 5,
-                        shadowColor: primaryColor.withOpacity(0.4),
+                        // PERBAIKAN: Menggunakan withValues
+                        shadowColor: primaryColor.withValues(alpha: 0.4),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       ),
                       icon: const Icon(Icons.home_rounded, size: 28),
@@ -170,15 +177,18 @@ class ResultScreen extends StatelessWidget {
         children: [
           Positioned(
             top: -60, left: -60,
-            child: CircleAvatar(radius: 120, backgroundColor: Colors.blueAccent.withOpacity(0.1)),
+            // PERBAIKAN: Menggunakan withValues
+            child: CircleAvatar(radius: 120, backgroundColor: Colors.blueAccent.withValues(alpha: 0.1)),
           ),
           Positioned(
             bottom: -40, right: -40,
-            child: CircleAvatar(radius: 100, backgroundColor: Colors.orangeAccent.withOpacity(0.1)),
+            // PERBAIKAN: Menggunakan withValues
+            child: CircleAvatar(radius: 100, backgroundColor: Colors.orangeAccent.withValues(alpha: 0.1)),
           ),
           Positioned(
             top: 100, right: 30,
-            child: CircleAvatar(radius: 30, backgroundColor: Colors.pinkAccent.withOpacity(0.1)),
+            // PERBAIKAN: Menggunakan withValues
+            child: CircleAvatar(radius: 30, backgroundColor: Colors.pinkAccent.withValues(alpha: 0.1)),
           ),
         ],
       ),
