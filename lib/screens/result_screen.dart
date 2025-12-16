@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+// import 'home_screen.dart'; // Pastikan import ini ada jika ingin navigasi ke Home
 
 class ResultScreen extends StatelessWidget {
   final int score;
-  final int total; // Jumlah soal
+  final int total;
   final Color? themeColor;
 
   const ResultScreen({
@@ -14,151 +15,186 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Logika Nilai
-    // Kita asumsikan 1 soal = 10 poin. Jadi Nilai Maksimal = Total Soal * 10.
-    int maxScore = total * 10;
-    
-    // Lulus jika nilai minimal 50% dari total
-    bool isPassed = score >= (maxScore / 2);
+    // --- 1. LOGIKA SKOR & BINTANG (Diperbaiki ke Persentase) ---
+    // Menghitung persentase agar kompatibel dengan input berapapun
+    final int percentage = ((score / total) * 100).round();
+    final bool isPassed = percentage >= 50;
 
-    // 2. Logika Bintang (0 - 3 Bintang)
+    // Logika Bintang
     int stars = 0;
-    if (score == maxScore) {
+    if (percentage == 100) {
       stars = 3; // Sempurna
-    } else if (score >= (maxScore * 0.7)) {
+    } else if (percentage >= 80) {
       stars = 2; // Bagus
-    } else if (score >= (maxScore * 0.4)) {
-      stars = 1; // Lumayan
+    } else if (percentage >= 50) {
+      stars = 1; // Lulus
     }
-    // Jika di bawah itu, stars tetap 0
 
-    Color primaryColor = themeColor ?? const Color(0xFF6C63FF);
+    // Warna Tema Status
+    final Color statusColor = isPassed ? const Color(0xFF00E676) : const Color(0xFFFF5252);
+    final Color primaryColor = themeColor ?? const Color(0xFF6C5CE7);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFFFF5E1),
       body: Stack(
         children: [
-          _buildBackground(), // Background dekoratif
+          // Background Pattern
+          const Positioned.fill(child: _GameBackgroundPattern()),
+
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Kartu Hasil
-                  Card(
-                    elevation: 10,
-                    // PERBAIKAN: Menggunakan withValues
-                    shadowColor: primaryColor.withValues(alpha: 0.4),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // A. Tampilan Bintang
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(3, (index) {
-                              return Icon(
-                                index < stars ? Icons.star_rounded : Icons.star_border_rounded,
-                                size: 50,
-                                color: Colors.amber,
-                              );
-                            }),
-                          ),
-                          const SizedBox(height: 20),
-
-                          // B. Ikon Besar (Piala / Sedih)
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              // PERBAIKAN: Menggunakan withValues
-                              color: isPassed 
-                                  ? Colors.green.withValues(alpha: 0.1) 
-                                  : Colors.red.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              isPassed ? Icons.emoji_events_rounded : Icons.mood_bad_rounded,
-                              size: 80,
-                              color: isPassed ? Colors.green : Colors.redAccent,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-
-                          // C. Teks Ucapan
-                          Text(
-                            isPassed ? "Luar Biasa!" : "Jangan Menyerah!",
-                            style: TextStyle(
-                              fontSize: 28, 
-                              fontWeight: FontWeight.bold, 
-                              color: primaryColor,
-                              fontFamily: 'Arial Rounded MT Bold',
-                              // Tambahan: Fallback font agar aman
-                              fontFamilyFallback: ['Roboto', 'sans-serif'],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            isPassed ? "Kamu berhasil menyelesaikan kuis." : "Ayo coba belajar lagi ya!",
-                            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 30),
-
-                          // D. Kotak Skor
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Column(
-                              children: [
-                                const Text("SKOR KAMU", style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
-                                Text(
-                                  "$score",
-                                  style: TextStyle(
-                                    fontSize: 48, 
-                                    fontWeight: FontWeight.w900, 
-                                    color: isPassed ? Colors.blueAccent : Colors.redAccent
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                  // --- HEADER TEKS ---
+                  Text(
+                    isPassed ? "MISSION COMPLETE" : "GAME OVER",
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: isPassed ? const Color(0xFF00B894) : const Color(0xFFD63031),
+                      letterSpacing: 2,
+                      shadows: const [Shadow(color: Colors.black12, offset: Offset(2, 2))]
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   
+                  const SizedBox(height: 30),
+
+                  // --- KARTU HASIL (GAME CARD STYLE) ---
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 30),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: Colors.black, width: 3),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          offset: Offset(0, 10), // Hard Shadow
+                          blurRadius: 0,
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // A. Bintang
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(3, (index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              child: Icon(
+                                index < stars ? Icons.star_rounded : Icons.star_border_rounded,
+                                size: 55,
+                                color: index < stars ? Colors.amber : Colors.grey[300],
+                                shadows: index < stars 
+                                  ? [const Shadow(color: Colors.orangeAccent, offset: Offset(0, 2), blurRadius: 2)]
+                                  : [],
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 25),
+
+                        // B. Ikon Utama (Piala / Tengkorak)
+                        Container(
+                          padding: const EdgeInsets.all(25),
+                          decoration: BoxDecoration(
+                            color: statusColor.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: statusColor, width: 3),
+                          ),
+                          child: Icon(
+                            isPassed ? Icons.emoji_events_rounded : Icons.sentiment_very_dissatisfied_rounded,
+                            size: 80,
+                            color: statusColor,
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 25),
+
+                        // C. Skor Digital
+                        Text(
+                          "SCORE",
+                          style: TextStyle(
+                            fontSize: 14, 
+                            fontWeight: FontWeight.w900, 
+                            color: Colors.grey[600],
+                            letterSpacing: 2
+                          ),
+                        ),
+                        Text(
+                          "$percentage", // Menampilkan nilai 0-100
+                          style: TextStyle(
+                            fontSize: 60, 
+                            fontWeight: FontWeight.w900, 
+                            color: statusColor,
+                            height: 1,
+                          ),
+                        ),
+                        Text(
+                          "($score dari $total Benar)",
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey[500]),
+                        ),
+                        
+                        const SizedBox(height: 25),
+
+                        // D. Pesan Motivasi
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: Colors.grey[300]!, width: 2),
+                          ),
+                          child: Text(
+                            isPassed 
+                              ? "Kerja bagus! Kamu siap untuk level berikutnya." 
+                              : "Jangan menyerah! Coba lagi untuk meraih bintang.",
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   const SizedBox(height: 40),
 
-                  // Tombol Kembali ke Menu
-                  SizedBox(
-                    width: double.infinity,
-                    height: 60,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Kembali ke halaman paling awal (Home)
-                        Navigator.popUntil(context, (route) => route.isFirst);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        foregroundColor: Colors.white,
-                        elevation: 5,
-                        // PERBAIKAN: Menggunakan withValues
-                        shadowColor: primaryColor.withValues(alpha: 0.4),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  // --- TOMBOL NAVIGASI ---
+                  Row(
+                    children: [
+                      // Tombol Home (Kecil)
+                      Expanded(
+                        flex: 1,
+                        child: _Game3DButton(
+                          color: Colors.white,
+                          shadowColor: Colors.grey[400]!,
+                          borderColor: Colors.black,
+                          child: const Icon(Icons.home_rounded, color: Colors.black),
+                          onTap: () {
+                             Navigator.popUntil(context, (route) => route.isFirst);
+                          },
+                        ),
                       ),
-                      icon: const Icon(Icons.home_rounded, size: 28),
-                      label: const Text(
-                        "KEMBALI KE MENU", 
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                      const SizedBox(width: 15),
+                      
+                      // Tombol Selesai (Besar)
+                      Expanded(
+                        flex: 3,
+                        child: _Game3DButton(
+                          label: "SELESAI",
+                          color: primaryColor,
+                          shadowColor: Colors.black26, // Shadow gelap karena warnanya pekat
+                          onTap: () {
+                             Navigator.popUntil(context, (route) => route.isFirst);
+                          },
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
@@ -168,30 +204,118 @@ class ResultScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  // Widget Background Bubble
-  Widget _buildBackground() {
+// --- WIDGET REUSABLE (Agar file mandiri & tidak error) ---
+
+// 1. Tombol 3D
+class _Game3DButton extends StatefulWidget {
+  final Color color;
+  final Color shadowColor;
+  final Color? borderColor;
+  final String? label;
+  final Widget? child;
+  final VoidCallback onTap;
+
+  const _Game3DButton({
+    required this.color,
+    required this.shadowColor,
+    this.borderColor,
+    this.label,
+    this.child,
+    required this.onTap,
+  });
+
+  @override
+  State<_Game3DButton> createState() => _Game3DButtonState();
+}
+
+class _Game3DButtonState extends State<_Game3DButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        height: 55,
+        transform: Matrix4.translationValues(0, _isPressed ? 6 : 0, 0),
+        decoration: BoxDecoration(
+          color: widget.color,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: widget.borderColor ?? Colors.black, width: 2),
+          boxShadow: _isPressed
+              ? []
+              : [
+                  BoxShadow(
+                    color: widget.shadowColor,
+                    offset: const Offset(0, 6),
+                    blurRadius: 0,
+                  ),
+                ],
+        ),
+        alignment: Alignment.center,
+        child: widget.child ?? Text(
+          widget.label ?? "",
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 16,
+            letterSpacing: 1,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// 2. Background Pattern
+class _GameBackgroundPattern extends StatelessWidget {
+  const _GameBackgroundPattern();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF0F4F8),
+      decoration: const BoxDecoration(color: Color(0xFFFFF5E1)),
       child: Stack(
         children: [
-          Positioned(
-            top: -60, left: -60,
-            // PERBAIKAN: Menggunakan withValues
-            child: CircleAvatar(radius: 120, backgroundColor: Colors.blueAccent.withValues(alpha: 0.1)),
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.1,
+              child: CustomPaint(painter: _DotGridPainter()),
+            ),
           ),
           Positioned(
-            bottom: -40, right: -40,
-            // PERBAIKAN: Menggunakan withValues
-            child: CircleAvatar(radius: 100, backgroundColor: Colors.orangeAccent.withValues(alpha: 0.1)),
+            top: -50, left: -50,
+            child: Icon(Icons.celebration, size: 150, color: Colors.blue.withOpacity(0.05)),
           ),
           Positioned(
-            top: 100, right: 30,
-            // PERBAIKAN: Menggunakan withValues
-            child: CircleAvatar(radius: 30, backgroundColor: Colors.pinkAccent.withValues(alpha: 0.1)),
+            bottom: 50, right: -20,
+            child: Icon(Icons.star, size: 120, color: Colors.orange.withOpacity(0.1)),
           ),
         ],
       ),
     );
   }
+}
+
+class _DotGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.grey..strokeCap = StrokeCap.round..strokeWidth = 2;
+    const step = 40.0;
+    for (double y = 0; y < size.height; y += step) {
+      for (double x = 0; x < size.width; x += step) {
+        if ((x / step).floor() % 2 == (y / step).floor() % 2) {
+          canvas.drawCircle(Offset(x, y), 1.5, paint);
+        }
+      }
+    }
+  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

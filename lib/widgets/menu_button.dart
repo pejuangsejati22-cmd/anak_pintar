@@ -4,7 +4,7 @@ class MenuButton extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
-  final Color color; // Ubah dari List<Color> jadi Color tunggal biar mudah dipanggil
+  final Color color;
   final VoidCallback onTap;
 
   const MenuButton({
@@ -18,92 +18,102 @@ class MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // Margin disesuaikan agar rapi
-      margin: const EdgeInsets.only(bottom: 20), 
-      height: 120, // Tinggi tetap agar semua tombol seragam
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25), // Radius 25 biar lebih bulat (ramah anak)
-        boxShadow: [
-          BoxShadow(
-            // PERBAIKAN: Menggunakan withValues
-            color: color.withValues(alpha: 0.4), // Bayangan mengikuti warna tombol
-            blurRadius: 10,
-            offset: const Offset(0, 6),
-          ),
-        ],
-        // Gradasi otomatis dibuat dari satu warna
-        gradient: LinearGradient(
-          // PERBAIKAN: Menggunakan withValues
-          colors: [color.withValues(alpha: 0.85), color],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    // Membuat warna shadow otomatis lebih gelap dari warna dasar
+    final Color shadowColor = HSLColor.fromColor(color).withLightness(0.4).toColor();
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 110, // Tinggi disesuaikan
+        margin: const EdgeInsets.only(bottom: 20),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.black, width: 3), // Border Hitam Tebal (Ciri Khas Game)
+          boxShadow: [
+            BoxShadow(
+              color: shadowColor, // Shadow Solid
+              offset: const Offset(0, 8), // Efek Timbul 3D
+              blurRadius: 0, // Tanpa Blur (Kartun Style)
+            ),
+          ],
         ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(25),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Row(
-              children: [
-                // Icon Kiri (Dalam lingkaran transparan)
-                Container(
-                  width: 60,
-                  height: 60,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    // PERBAIKAN: Menggunakan withValues
-                    color: Colors.white.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: Colors.white, size: 30),
-                ),
-                
-                const SizedBox(width: 20),
-                
-                // Bagian Teks
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24, // Font agak besar
-                          fontWeight: FontWeight.w900, // Lebih tebal
-                          letterSpacing: 1,
-                          fontFamily: 'Arial Rounded MT Bold', // Font tema game
-                          // Tambahan: Fallback font agar aman
-                          fontFamilyFallback: ['Roboto', 'sans-serif'],
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(17),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              splashColor: Colors.white.withOpacity(0.2),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  children: [
+                    // 1. Ikon Kiri (Dalam Lingkaran)
+                    Container(
+                      width: 55,
+                      height: 55,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.25), // Transparan Putih
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      child: Icon(icon, color: Colors.white, size: 28),
+                    ),
+                    
+                    const SizedBox(width: 20),
+                    
+                    // 2. Teks Judul & Subjudul
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24, 
+                              fontWeight: FontWeight.w900, // Sangat Tebal
+                              letterSpacing: 1.2,
+                              // Shadow teks agar terbaca jelas
+                              shadows: [Shadow(color: Colors.black26, offset: Offset(2, 2))]
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            subtitle,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    
+                    const SizedBox(width: 10),
+                    
+                    // 3. Tombol Play Kanan (Lingkaran Putih)
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black, width: 2),
+                        boxShadow: const [BoxShadow(color: Colors.black12, offset: Offset(0, 3))],
+                      ),
+                      child: Icon(Icons.play_arrow_rounded, color: color, size: 28),
+                    ),
+                  ],
                 ),
-                
-                const SizedBox(width: 10),
-                
-                // Icon Kanan (Play Button biar lebih seru)
-                const Icon(Icons.play_circle_fill, color: Colors.white, size: 40),
-              ],
+              ),
             ),
           ),
         ),

@@ -14,51 +14,62 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
+  // Warna Tema
+  final Color _primaryColor = const Color(0xFF0984E3); // Blue Game
+  final Color _accentColor = const Color(0xFF00E676); // Green Success
+
   Future<void> _handleSignup() async {
     String name = _nameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      _showSnackBar("Semua kolom harus diisi ya!", Colors.orange);
+      _showGameSnackBar("Data belum lengkap, nih!", Colors.orange, Icons.warning_rounded);
       return;
     }
 
     setState(() => _isLoading = true);
     
-    // PANGGIL DATABASE HELPER (Simpan ke SQLite)
+    // Simpan ke SQLite
     bool success = await DatabaseHelper.instance.registerUser(name, email, password);
 
     if (success) {
-      // Cek apakah layar masih aktif sebelum menampilkan SnackBar
       if (!mounted) return;
-      _showSnackBar("Hore! Berhasil daftar. Silakan login.", Colors.green);
+      _showGameSnackBar("Hore! Akun berhasil dibuat.", _accentColor, Icons.check_circle_rounded);
       
-      // Tunggu 1 detik
       await Future.delayed(const Duration(seconds: 1)); 
       
-      // Cek 'mounted' LAGI setelah bangun dari tidur (await).
       if (mounted) {
         Navigator.pop(context); // Kembali ke Login
       }
 
     } else {
       if (mounted) {
-        _showSnackBar("Yah, Email sudah terpakai!", Colors.redAccent);
+        _showGameSnackBar("Yah, Email sudah terpakai!", const Color(0xFFFF5252), Icons.error_rounded);
       }
     }
 
-    // Stop loading hanya jika layar masih ada
     if (mounted) setState(() => _isLoading = false);
   }
 
-  void _showSnackBar(String message, Color color) {
+  // Custom SnackBar Game Style
+  void _showGameSnackBar(String message, Color color, IconData icon) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: const TextStyle(fontWeight: FontWeight.bold)),
+        content: Row(
+          children: [
+            Icon(icon, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message, style: const TextStyle(fontWeight: FontWeight.bold))),
+          ],
+        ),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: const BorderSide(color: Colors.black, width: 2),
+        ),
+        elevation: 0,
       ),
     );
   }
@@ -66,127 +77,131 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, 
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.deepPurple),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      backgroundColor: const Color(0xFFFFF5E1), // Background Cream
       body: Stack(
         children: [
-          _buildBackground(), // Background Dekoratif
-          Center(
+          // 1. Background Pattern
+          const Positioned.fill(child: _GameBackgroundPattern()),
+          
+          SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Ikon Daftar
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          // PERBAIKAN: Menggunakan withValues
-                          color: Colors.deepPurple.withValues(alpha: 0.2),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
+                  // --- HEADER (BACK BUTTON) ---
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.black, width: 3),
+                          boxShadow: const [BoxShadow(color: Colors.black12, offset: Offset(0, 4), blurRadius: 0)],
                         ),
-                      ],
-                    ),
-                    child: const Icon(Icons.person_add_alt_1_rounded, size: 50, color: Colors.blueAccent),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Kartu Form
-                  Card(
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    // PERBAIKAN: Menggunakan withValues
-                    shadowColor: Colors.deepPurple.withValues(alpha: 0.3),
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            "Buat Akun Baru",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 24, 
-                              fontWeight: FontWeight.bold,
-                              color: Colors.deepPurple,
-                              fontFamily: 'Arial Rounded MT Bold',
-                              // Tambahan: Fallback font agar aman
-                              fontFamilyFallback: ['Roboto', 'sans-serif'],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Isi data dirimu di bawah ini",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                          ),
-                          const SizedBox(height: 30),
-                          
-                          // Input Nama
-                          _buildTextField(
-                            controller: _nameController,
-                            label: "Nama Lengkap",
-                            icon: Icons.person_rounded,
-                            isObscure: false,
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Input Email
-                          _buildTextField(
-                            controller: _emailController,
-                            label: "Email",
-                            icon: Icons.email_rounded,
-                            isObscure: false,
-                          ),
-                          const SizedBox(height: 16),
-                          
-                          // Input Password
-                          _buildTextField(
-                            controller: _passwordController,
-                            label: "Password",
-                            icon: Icons.lock_rounded,
-                            isObscure: true,
-                          ),
-                          const SizedBox(height: 30),
-                          
-                          // Tombol Daftar
-                          SizedBox(
-                            height: 55,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleSignup,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF6C63FF),
-                                foregroundColor: Colors.white,
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                              ),
-                              child: _isLoading 
-                                ? const SizedBox(
-                                    width: 24, height: 24,
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3)
-                                  )
-                                : const Text(
-                                    "DAFTAR SEKARANG", 
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1),
-                                  ),
-                            ),
-                          ),
-                        ],
+                        child: const Icon(Icons.arrow_back_rounded, color: Colors.black, size: 28),
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 20),
+
+                  // --- JUDUL & ICON ---
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black, width: 3),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, offset: Offset(0, 8), blurRadius: 0)
+                        ],
+                      ),
+                      child: const Icon(Icons.person_add_alt_1_rounded, size: 50, color: Colors.blueAccent),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "NEW PLAYER",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 28, 
+                      fontWeight: FontWeight.w900,
+                      color: _primaryColor,
+                      letterSpacing: 2,
+                      shadows: const [Shadow(color: Colors.black12, offset: Offset(2, 2))]
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 30),
+
+                  // --- FORM CARD ---
+                  Container(
+                    padding: const EdgeInsets.all(25),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: Colors.black, width: 3),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          offset: Offset(0, 10),
+                          blurRadius: 0,
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Buat Profil Kamu",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black87),
+                        ),
+                        const SizedBox(height: 25),
+
+                        // Input Nama
+                        _GameTextField(
+                          controller: _nameController,
+                          label: "NAMA LENGKAP",
+                          icon: Icons.badge_rounded,
+                          isObscure: false,
+                        ),
+                        const SizedBox(height: 15),
+
+                        // Input Email
+                        _GameTextField(
+                          controller: _emailController,
+                          label: "EMAIL",
+                          icon: Icons.email_rounded,
+                          isObscure: false,
+                        ),
+                        const SizedBox(height: 15),
+                        
+                        // Input Password
+                        _GameTextField(
+                          controller: _passwordController,
+                          label: "PASSWORD",
+                          icon: Icons.lock_rounded,
+                          isObscure: true,
+                        ),
+                        const SizedBox(height: 30),
+                        
+                        // Tombol Daftar 3D
+                        _Game3DActionButton(
+                          label: "SIMPAN DATA",
+                          color: _primaryColor,
+                          shadowColor: const Color(0xFF00509E), // Darker Blue
+                          isLoading: _isLoading,
+                          onTap: _handleSignup,
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
@@ -195,54 +210,164 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
+}
 
-  // Widget Custom Input Field
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    required bool isObscure,
-  }) {
-    return TextField(
-      controller: controller,
-      obscureText: isObscure,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: const Color(0xFF6C63FF)),
-        filled: true,
-        fillColor: const Color(0xFFF5F6FA), 
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide.none,
+// --- WIDGETS KHUSUS GAME STYLE (Reusable dari Login) ---
+
+class _GameTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final IconData icon;
+  final bool isObscure;
+
+  const _GameTextField({
+    required this.controller,
+    required this.label,
+    required this.icon,
+    required this.isObscure,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label, 
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Colors.grey)
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F6FA),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.black, width: 2),
+          ),
+          child: TextField(
+            controller: controller,
+            obscureText: isObscure,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon, color: Colors.black87),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Game3DActionButton extends StatefulWidget {
+  final String label;
+  final Color color;
+  final Color shadowColor;
+  final VoidCallback onTap;
+  final bool isLoading;
+
+  const _Game3DActionButton({
+    required this.label,
+    required this.color,
+    required this.shadowColor,
+    required this.onTap,
+    this.isLoading = false,
+  });
+
+  @override
+  State<_Game3DActionButton> createState() => _Game3DActionButtonState();
+}
+
+class _Game3DActionButtonState extends State<_Game3DActionButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.isLoading ? null : widget.onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        height: 55,
+        transform: Matrix4.translationValues(0, _isPressed ? 6 : 0, 0),
+        decoration: BoxDecoration(
+          color: widget.color,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.black, width: 2),
+          boxShadow: _isPressed
+              ? []
+              : [
+                  BoxShadow(
+                    color: widget.shadowColor,
+                    offset: const Offset(0, 6),
+                    blurRadius: 0,
+                  ),
+                ],
+        ),
+        alignment: Alignment.center,
+        child: widget.isLoading
+            ? const SizedBox(
+                width: 24, height: 24,
+                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+              )
+            : Text(
+                widget.label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                ),
+              ),
       ),
     );
   }
+}
 
-  // Widget Background Bubble
-  Widget _buildBackground() {
+class _GameBackgroundPattern extends StatelessWidget {
+  const _GameBackgroundPattern();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF0F4F8),
+      decoration: const BoxDecoration(color: Color(0xFFFFF5E1)),
       child: Stack(
         children: [
-          Positioned(
-            top: -60, left: -60,
-            // PERBAIKAN: Menggunakan withValues
-            child: CircleAvatar(radius: 120, backgroundColor: Colors.blueAccent.withValues(alpha: 0.1)),
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.1,
+              child: CustomPaint(painter: _DotGridPainter()),
+            ),
           ),
           Positioned(
-            bottom: -40, right: -40,
-            // PERBAIKAN: Menggunakan withValues
-            child: CircleAvatar(radius: 100, backgroundColor: Colors.orangeAccent.withValues(alpha: 0.1)),
+            top: -30, right: -30,
+            child: Icon(Icons.flash_on_rounded, size: 120, color: Colors.orange.withOpacity(0.1)),
           ),
           Positioned(
-            top: 100, right: 30,
-            // PERBAIKAN: Menggunakan withValues
-            child: CircleAvatar(radius: 30, backgroundColor: Colors.pinkAccent.withValues(alpha: 0.1)),
+            bottom: 50, left: -20,
+            child: Icon(Icons.extension, size: 100, color: Colors.purple.withOpacity(0.05)),
           ),
         ],
       ),
     );
   }
+}
+
+class _DotGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.grey..strokeCap = StrokeCap.round..strokeWidth = 2;
+    const step = 40.0;
+    for (double y = 0; y < size.height; y += step) {
+      for (double x = 0; x < size.width; x += step) {
+        if ((x / step).floor() % 2 == (y / step).floor() % 2) {
+          canvas.drawCircle(Offset(x, y), 1.5, paint);
+        }
+      }
+    }
+  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

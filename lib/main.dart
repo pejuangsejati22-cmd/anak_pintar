@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart'; // Import Login Screen
+import 'screens/login_screen.dart'; 
 
 void main() {
+  // Pastikan binding diinisialisasi (Penting karena kita pakai Database)
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -14,54 +16,79 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Game Edukasi Anak',
       
-      // --- PENGATURAN TEMA GLOBAL ---
+      // --- PENGATURAN TEMA PREMIUM GAME ---
       theme: ThemeData(
         useMaterial3: true,
-        // 1. Font Utama (Pastikan font ini terbaca di pubspec.yaml atau sistem)
-        fontFamily: 'Arial Rounded MT Bold', 
+        // Gunakan font default, tapi kita pertebal di style
+        fontFamily: 'Roboto', 
+        fontFamilyFallback: const ['Arial', 'sans-serif'],
 
-        // 2. Skema Warna
+        // 1. Skema Warna Game (Ungu & Cream)
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6C63FF), // Warna Ungu Utama
-        
+          seedColor: const Color(0xFF6C5CE7), // Ungu Game
+          surface: const Color(0xFFFFF5E1), // Background Cream Hangat (Sama seperti Login/Home)
+          onSurface: Colors.black87,
         ),
 
-        // 3. Background Scaffold Global (Agar konsisten di semua layar)
-        scaffoldBackgroundColor: const Color(0xFFF0F4F8),
+        // 2. Background Global
+        scaffoldBackgroundColor: const Color(0xFFFFF5E1),
 
-        // 4. Tema AppBar Global (Transparan & Teks Ungu)
+        // 3. Tema AppBar Global
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
-          iconTheme: IconThemeData(color: Colors.deepPurple), // Warna panah back
+          // Ikon Back Hitam Tebal
+          iconTheme: IconThemeData(color: Colors.black, size: 28), 
           titleTextStyle: TextStyle(
-            fontFamily: 'Arial Rounded MT Bold',
-            color: Colors.deepPurple,
+            color: Colors.black, // Judul Hitam
             fontSize: 24,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w900, // Font Sangat Tebal (Game Style)
+            letterSpacing: 1.5,
           ),
         ),
 
-        // 5. Tema Tombol Global (Rounded & Ungu)
-        // Ini membuat semua ElevatedButton otomatis jadi bulat dan ungu tanpa perlu di-style satu-satu
+        // 4. Tema Tombol Global (Untuk Dialog/System)
+        // Agar tombol standar pun punya Border Hitam ala Game
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF6C63FF), // Warna tombol
-            foregroundColor: Colors.white, // Warna teks
-            elevation: 5,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            textStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Arial Rounded MT Bold',
+            backgroundColor: const Color(0xFF6C5CE7), // Ungu
+            foregroundColor: Colors.white,
+            elevation: 0, // Hilangkan shadow blur standar (Kita pakai hard shadow di custom widget)
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: Colors.black, width: 2), // Border Hitam
             ),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w900, // Teks Tebal
+              fontSize: 16,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+
+        // 5. Tema Input Text Global
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFFF5F6FA),
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.black, width: 2),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.black, width: 2),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFF6C5CE7), width: 3),
           ),
         ),
       ),
 
-      // --- TITIK MULAI APLIKASI ---
-      // Ubah ke LoginScreen agar alurnya: Login -> Home -> Kuis
+      // --- TITIK MULAI ---
       home: const LoginScreen(), 
     );
   }
