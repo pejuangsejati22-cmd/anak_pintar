@@ -412,7 +412,7 @@ class _GameLevelCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: Colors.white.withOpacity(0.3),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: Colors.white, size: 30),
@@ -551,15 +551,15 @@ class _GameBackgroundPattern extends StatelessWidget {
           // Elemen Dekoratif Floating
           Positioned(
             top: 50, right: -20,
-            child: Icon(Icons.cloud, size: 100, color: Colors.blueAccent.withValues(alpha: 0.1)),
+            child: Icon(Icons.cloud, size: 100, color: Colors.blueAccent.withOpacity(0.1)),
           ),
           Positioned(
             top: 150, left: -20,
-            child: Icon(Icons.star, size: 80, color: Colors.amber.withValues(alpha: 0.1)),
+            child: Icon(Icons.star, size: 80, color: Colors.amber.withOpacity(0.1)),
           ),
           Positioned(
             bottom: 50, right: 30,
-            child: Icon(Icons.videogame_asset, size: 120, color: Colors.purple.withValues(alpha: 0.05)),
+            child: Icon(Icons.videogame_asset, size: 120, color: Colors.purple.withOpacity(0.05)),
           ),
         ],
       ),
