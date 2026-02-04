@@ -1,4 +1,4 @@
-package com.example.edukasi_anak_pintar
+package com.pinterlyabs.learn
 
 import io.flutter.embedding.android.FlutterActivity
 
